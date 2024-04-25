@@ -1,5 +1,6 @@
 import time  # for importing libraries for time
 from selenium import webdriver
+from selenium.common import TimeoutException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -83,17 +84,18 @@ if draw_zone_button.is_displayed() and draw_zone_button.is_enabled():
     draw_zone_button.click()
 else:
     print("Draw zone button is not visible and enabled")
+time.sleep(2)
 
-time.sleep(4)
-# Find the map element
-map_element = driver.find_element(By.XPATH, "/html/body/app-root/div[2]/app-dashboard/div/div/app-manage-geozone/div[2]/div[2]/div/div/form/div[1]/div/div/div[2]/div/div")
+save_button = driver.find_element(By.XPATH, "/html/body/app-root/div[2]/app-dashboard/div/div/app-manage-geozone/div[2]/div[2]/div/div/form/div[2]/button[2]").click()
+time.sleep(2)
+try:
+    # Try switching to the alert and accepting it
+    alert = driver.switch_to.alert
+    alert.accept()
+except:
+    # If no alert is present, proceed without doing anything
+    pass
 
-# Click on the map to start drawing the circle using JavaScript
-driver.execute_script("arguments[0].click();", map_element)
 
-# Move the cursor to adjust the size of the circle (optional)
-action_chains = ActionChains(driver)
-action_chains.move_to_element_with_offset(map_element, 100, 100).perform()
-# Click again to finish drawing the circle
-action_chains.click().perform()
-time.sleep(3)
+# Wait for the overlay to disappear
+WebDriverWait(driver, 10).until(EC.invisibility_of_element_located((By.CLASS_NAME,"swal2-popup swal2-modal swal2-icon-warning swal2-show")))
